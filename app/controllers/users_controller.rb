@@ -3,9 +3,9 @@ class UsersController < ApplicationController
 	before_action :baria_user, only: [:update]
 
   def show
+		@book = Book.new #new bookの新規投稿で必要（保存処理はbookコントローラー側で実施）
   	@user = User.find(params[:id])
   	@books = @user.books
-  	@book = Book.new #new bookの新規投稿で必要（保存処理はbookコントローラー側で実施）
   end
 
   def index
@@ -15,14 +15,18 @@ class UsersController < ApplicationController
 
   def edit
   	@user = User.find(params[:id])
+		if @user != current_user
+      redirect_to user_path(current_user.id)
+    end
   end
 
   def update
   	@user = User.find(params[:id])
   	if @user.update(user_params)
-  		redirect_to users_path(@user), notice: "successfully updated user!"
+  		redirect_to user_path(current_user.id), notice: "successfully updated user!"
   	else
-  		render "show"
+			flash[:notice] = "error"
+	    render 'edit'
   	end
   end
 
